@@ -8,7 +8,7 @@
 #### Seeder
 
 ```
-php artisan module:seed Icommercecredibanco
+php artisan module:seed Icommercexpay
 ```
 
 #### Data Configuration

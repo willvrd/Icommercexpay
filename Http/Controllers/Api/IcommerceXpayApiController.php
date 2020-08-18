@@ -83,7 +83,11 @@ class IcommerceXpayApiController extends BaseApiController
 
             // Search Options Payment
 
-            $redirectRoute = "miurl";
+            // Encrip
+            $params = array('orderID' => 1, 'transactionID' => 1 );
+            $eUrl = xpay_EncriptUrl($params);
+           
+            $redirectRoute = route('icommercexpay',[$eUrl]);
 
             // Response
             $response = [ 'data' => [
