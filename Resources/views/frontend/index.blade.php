@@ -21,11 +21,14 @@
       <div class="row my-5 justify-content-center">
       <div class="col-xs-12 col-sm-8">
 
-        <div v-if="success && !loading" class="card text-center">
+
+        <div v-if="success" class="card text-center">
 
           <div class="card-header bg-secondary">
             <h2 class="font-weight-bold text-white">xPay</h2>
           </div>
+
+          @include("icommercexpay::frontend.partials.loading")
 
           <div v-if="!dataError" class="card-body py-5 px-4">
 
@@ -85,11 +88,39 @@ var index_xpay = new Vue({
         console.error(this.dataErrorMsj)
         
     },
+    generatePayment(){
+
+      this.loading = true;
+
+      console.warn("generate payment")
+
+      this.loading = false;
+    },
     onStep(nextStep){
       this.currentStep = nextStep;
-    }
+      this.generatePayment();
+    },
+   
   }
 })
 
 </script>
 @stop
+
+<style>
+  #capa {
+      width: 100%;
+      top: 0;
+      left: 0;
+      background-color: rgba(255, 255, 255, 0.95);
+      z-index: 1;
+  }
+  .flex-center{
+      align-items: center;
+      display: flex;
+      justify-content: center;
+  }
+  .full-height {
+      height: 100%;
+  }
+</style>
