@@ -27,12 +27,18 @@
             <h2 class="font-weight-bold text-white">xPay</h2>
           </div>
 
-          <div class="card-body py-5 px-4">
+          <div v-if="!dataError" class="card-body py-5 px-4">
 
               @include("icommercexpay::frontend.partials.currencies")
  
               @include("icommercexpay::frontend.partials.payment")
-              
+
+          </div>
+
+          <div v-else class="card-body py-5 px-4">
+            <div class="alert alert-danger" role="alert">
+              Ha ocurrido un error comuniquese con el administrador
+            </div>
           </div>
 
           <div class="card-footer text-muted">
@@ -65,12 +71,19 @@ var index_xpay = new Vue({
     currentStep: 1,
     loading: true,
     success: false,
+    dataError: {!! $dataError['status'] ? $dataError['status']: 0 !!},
+    dataErrorMsj: {!! $dataError['msj'] ? $dataError['msj']: 0 !!},
+    data: {!! json_encode($data) !!},
     selectedCurrency: null
   }, 
   methods: {
     init(){
       this.success = true;
       this.loading = false;
+
+      if(this.dataError)
+        console.error(this.dataErrorMsj)
+        
     },
     onStep(nextStep){
       this.currentStep = nextStep;

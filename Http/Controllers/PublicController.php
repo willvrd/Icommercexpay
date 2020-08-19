@@ -34,6 +34,9 @@ class PublicController extends BasePublicController
      */
     public function index(Request $request){
 
+        $dataError["status"] = false;
+        $dataError["msj"] = false;
+        
         try{
 
             // Decr
@@ -54,6 +57,7 @@ class PublicController extends BasePublicController
                 throw new \Exception($infor->errors, 204);
             }
             */
+        
             
             // GET CURRENCIES
             /*
@@ -71,19 +75,24 @@ class PublicController extends BasePublicController
             }
             */
           
-            $tpl ='icommercexpay::frontend.index';
-            return view($tpl);
-            //return view($tpl,compact('tXpay','currencies'));
-
+            $data = [
+                'tXpay' => "token",
+                'currencies' => "currencies",
+                'orderID' => $orderID,
+                'transactionID' => $transactionID
+            ];
+      
         }catch(\Exception $e){
-
-            echo "Ooops, ha ocurrido un error comuniquese con el administrador <br>";
-            echo "".$e->getMessage();
 
             //\Log::error('Module Icommercexpay - index: Message: '.$e->getMessage());
             //\Log::error('Module Icommercexpay - index: Code: '.$e->getCode());
-
+            $dataError["status"] = true;
+            $dataError["msj"] = json_encode($e->getMessage());
         }
+
+
+        $tpl ='icommercexpay::frontend.index';
+        return view($tpl,compact('data','dataError'));
        
     }
 
