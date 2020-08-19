@@ -28,6 +28,11 @@ class IcommerceXpayApiController extends BaseApiController
     private $orderController;
     private $transaction;
     private $transactionController;
+
+    const URL_PRODUCTION = "https://xpay.cash";
+    const URL_SANDBOX = "https://test.xpay.cash";
+    
+    protected $urlsSandbox;
     
     public function __construct(
         IcommerceXpayRepository $checkmo,
@@ -44,11 +49,16 @@ class IcommerceXpayApiController extends BaseApiController
         $this->orderController = $orderController;
         $this->transaction = $transaction;
         $this->transactionController = $transactionController;
+
+        $this->urls= array(
+            "getTokenLogin" => "/api/v1/auth/login/",
+            "getAccountInformation" => "/api/v1/users/",
+            "getCurrencies" => "/api/v1/transactions/available/currencies/"
+        );
     }
     
     /**
      * Init data
-     * @param Requests request
      * @param Requests orderid
      * @return route
      */
@@ -61,16 +71,15 @@ class IcommerceXpayApiController extends BaseApiController
             $this->validateRequestApi(new InitRequest($data));
          
             $orderID = $request->orderID;
-            \Log::info('Module Icommercexpay: Init-ID:'.$orderID);
+            //\Log::info('Module Icommercexpay: Init-ID:'.$orderID);
 
             $paymentMethod = $this->getPaymentMethodConfiguration();
 
             // Order
-            //$order = $this->order->find($orderID);
-            //$statusOrder = 1; // Processing
+            $order = $this->order->find($orderID);
+            $statusOrder = 1; // Processing
 
             // Create Transaction
-            /*
             $transaction = $this->validateResponseApi(
                 $this->transactionController->create(new Request( ["attributes" => [
                     'order_id' => $order->id,
@@ -79,12 +88,9 @@ class IcommerceXpayApiController extends BaseApiController
                     'status' => $statusOrder
                 ]]))
             );
-            */
-
-            // Search Options Payment
-
+            
             // Encrip
-            $params = array('orderID' => 1, 'transactionID' => 1 );
+            $params = array('orderID' => $order->id, 'transactionID' => $transaction->id);
             $eUrl = xpay_EncriptUrl($params);
            
             $redirectRoute = route('icommercexpay',[$eUrl]);
@@ -95,7 +101,7 @@ class IcommerceXpayApiController extends BaseApiController
             ]];
 
 
-          } catch (\Exception $e) {
+        } catch (\Exception $e) {
             //Message Error
             $status = 500;
             $response = [
@@ -106,18 +112,125 @@ class IcommerceXpayApiController extends BaseApiController
         return response()->json($response, $status ?? 200);
 
     }
-    
-    /**
-     * Response Api Method
-     * @param Requests request
-     * @return route 
-     */
-    public function response(Request $request){
 
-       
+
+    /**
+     * XPAY API - Get Token Login
+     * @param Requests
+     * @return token
+     */
+    public function getTokenLogin(Request $request){
+
+        //\Log::info('Module Icommercexpay: GetTokenLogin');
+        try {
+
+            $paymentMethod = $this->getPaymentMethodConfiguration();
+            if($paymentMethod->options->mode=="sandbox")
+                $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
+            else
+                $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
+            
+            //SANDBOX ERROR
+            $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
+
+            $params = array(
+                "email" => $paymentMethod->options->user,
+                "password" => $paymentMethod->options->password
+            );
+
+            $params = array(
+                "email" => 'alejandra.barrera.q@hotmail.com',
+                "password" => 'Metka-2020'
+            );
+            
+            // SEND DATA xPay AND GET URL
+            $client = new \GuzzleHttp\Client();
+            $response= $client->request('POST', $endPoint, [
+                'body' => json_encode($params),
+                'headers' => [
+                    'Content-Type'     => 'application/json',
+                ]
+            ]);
+
+            //\Log::info('Module Icommercexpay: xPay Response Code: '.$response->getStatusCode());
+           
+        } catch (\Exception $e) {
+            $status = 500;
+            $response = [
+              'errors' => $e->getMessage()
+            ];
+            //\Log::info('Module Icommercexpay: xPay Response Code: '.$e->getMessage());
+        }
+
+        return response()->json($response, $status ?? 200);
 
     }
 
+
+     /**
+     * XPAY API - Get Available currencies
+     * @param Requests token
+     * @param Requests amount
+     * @param Requests currency
+     * @return array currencies
+     */
+    public function getCurrencies(Request $request){
+
+        try {
+
+            $data = $request->all();
+            $paymentMethod = $this->getPaymentMethodConfiguration();
+           
+            /*
+            if($paymentMethod->options->mode=="sandbox")
+                $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
+            else
+                $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
+            */
+           
+            $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->amount}/{$request->currency}/";
+
+            // SEND DATA xPay AND GET URL
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('GET', $endPoint, [
+                'headers' => [
+                    'Authorization' => "Token ".$request->token,
+                ]
+            ]);
+           
+        } catch (\Exception $e) {
+            $status = 500;
+            $response = [
+              'errors' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response, $status ?? 200);
+
+    }
+
+
+     /**
+     * Response Callback
+     * @param Requests 
+     * @return Json Information
+     */
+    public function response(Request $request){
+        try {
+
+            \Log::info('Module Icommercexpay: Response - '.time());
+           
+        }catch(\Exception $e){
+
+            //Log Error
+            \Log::error('Module Icommercexpay: Message: '.$e->getMessage());
+            \Log::error('Module Icommercexpay: Code: '.$e->getCode());
+
+        }
+
+        return response('Recibido', 200);
+    }
+    
     /**
      * Get Payment Method Configuration
      * @param

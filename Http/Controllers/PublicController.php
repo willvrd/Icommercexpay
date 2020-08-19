@@ -16,15 +16,15 @@ class PublicController extends BasePublicController
 {
   
     private $setting;
-    private $credibancoApiController;
+    private $xpayApiController;
 
     public function __construct(
         Setting $setting,
-        IcommerceXpayApiController $credibancoApiController
+        IcommerceXpayApiController $xpayApiController
     )
     {
         $this->setting = $setting;
-        $this->credibancoApiController = $credibancoApiController;
+        $this->xpayApiController = $xpayApiController;
     }
 
      /**
@@ -41,21 +41,47 @@ class PublicController extends BasePublicController
             $orderID = $infor[0];
             $transactionID = $infor[1];
 
-            \Log::info('Module Icommercexpay: Index-ID:'.$orderID);
+            // SEARCH ORDER
 
+            // GET TOKEN
+            /*
+            $response = $this->xpayApiController->getTokenLogin($request);
+            $infor = $response->getData();
 
+            if(isset($infor->data)){
+                $data =  $infor->data;
+            }else{
+                throw new \Exception($infor->errors, 204);
+            }
+            */
+            
+            // GET CURRENCIES
+            /*
+            $response = $this->xpayApiController->getCurrencies(new Request([
+                "token" => "123",
+                "amount" => 25000,
+                "currency" => "COP"
+            ]));
+            $inforCurrencies = $response->getData();
+
+            if(isset($inforCurrencies->data)){
+                $currencies =  $inforCurrencies->data;
+            }else{
+                throw new \Exception($inforCurrencies->errors, 204);
+            }
+            */
+          
             $tpl ='icommercexpay::frontend.index';
-
             return view($tpl);
+            //return view($tpl,compact('tXpay','currencies'));
 
-           
-    
         }catch(\Exception $e){
 
-            echo "Ooops, ha ocurrido un error comuniquese con el administrador";
+            echo "Ooops, ha ocurrido un error comuniquese con el administrador <br>";
+            echo "".$e->getMessage();
 
-            \Log::error('Module Icommercexpay - index: Message: '.$e->getMessage());
-            \Log::error('Module Icommercexpay - index: Code: '.$e->getCode());
+            //\Log::error('Module Icommercexpay - index: Message: '.$e->getMessage());
+            //\Log::error('Module Icommercexpay - index: Code: '.$e->getCode());
 
         }
        

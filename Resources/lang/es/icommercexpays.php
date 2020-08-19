@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'single' => 'Check money order',
+    'single' => 'xPay',
     'description' => 'La descripcion del Modulo',
     'list resource' => 'List icommercexpays',
     'create resource' => 'Create icommercexpays',
