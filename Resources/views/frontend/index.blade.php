@@ -18,15 +18,31 @@
   
     <div class="container">
 
-      @include('icommercexpay::frontend.partials.header')
-    
       <div class="row my-5 justify-content-center">
-       
-          <h2>@{{prueba}}</h2>
+      <div class="col-xs-12 col-sm-8">
+
+        <div v-if="success && !loading" class="card text-center">
+
+          <div class="card-header bg-secondary">
+            <h2 class="font-weight-bold text-white">xPay</h2>
+          </div>
+
+          <div class="card-body py-5 px-4">
+
+              @include("icommercexpay::frontend.partials.currencies")
+ 
+              @include("icommercexpay::frontend.partials.payment")
+              
+          </div>
+
+          <div class="card-footer text-muted">
+            xPay - {{date('Y')}}
+          </div>
+
+        </div>
     
       </div>
-
-      @include('icommercexpay::frontend.partials.footer')
+      </div>
 
     </div>
 
@@ -46,11 +62,18 @@ var index_xpay = new Vue({
     })
   },
   data: {
-    prueba:"Esto es un texto de prueba"
+    currentStep: 1,
+    loading: true,
+    success: false,
+    selectedCurrency: null
   }, 
   methods: {
     init(){
-      console.warn("INICIANDO VUE")
+      this.success = true;
+      this.loading = false;
+    },
+    onStep(nextStep){
+      this.currentStep = nextStep;
     }
   }
 })
