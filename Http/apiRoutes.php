@@ -19,6 +19,11 @@ $router->group(['prefix' => 'icommercexpay'], function (Router $router) {
         'uses' => 'IcommerceXpayApiController@getCurrencies',
     ]);
 
+    $router->post('/create-payment', [
+        'as' => 'icommercexpay.api.xpay.createPayment',
+        'uses' => 'IcommerceXpayApiController@createPayment',
+    ]);
+
     $router->post('/response', [
         'as' => 'icommercexpay.api.xpay.response',
         'uses' => 'IcommerceXpayApiController@response',

@@ -53,7 +53,8 @@ class IcommerceXpayApiController extends BaseApiController
         $this->urls= array(
             "getTokenLogin" => "/api/v1/auth/login/",
             "getAccountInformation" => "/api/v1/users/",
-            "getCurrencies" => "/api/v1/transactions/available/currencies/"
+            "getCurrencies" => "/api/v1/transactions/available/currencies/",
+            "createPayment" => "/api/v1/transactions/create/"
         );
     }
     
@@ -207,6 +208,64 @@ class IcommerceXpayApiController extends BaseApiController
 
         return response()->json($response, $status ?? 200);
 
+    }
+
+
+     /**
+     * XPAY API - Create Payment Transaction
+     * @param Requests Token
+     * @param Requests Order ID
+     * @param Requests src_currency
+     * @param Requests exchange_id
+     * @return Json Information
+     */
+    public function createPayment(Request $request){
+        try {
+
+            $paymentMethod = $this->getPaymentMethodConfiguration();
+           
+            /*
+            if($paymentMethod->options->mode=="sandbox")
+                $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
+            else
+                $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
+            */
+           
+            $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
+            
+            
+            $params = array(
+                "src_currency" => "BTC",
+                "amount" => 25000,
+                "exchange_id" => 1,
+                "tgt_currency" => "COC",
+	            "callback" => "http://localhost:8000/perrito"
+            );
+
+            // SEND DATA xPay AND GET URL
+            $client = new \GuzzleHttp\Client();
+            $response= $client->request('POST', $endPoint, [
+                'body' => json_encode($params),
+                'headers' => [
+                    'Content-Type'     => 'application/json',
+                    'Authorization' => "Token ".'123',
+                ]
+            ]);
+            
+        }catch(\Exception $e){
+            
+            $status = 500;
+            $response = [
+              'errors' => $e->getMessage()
+            ];
+
+            //Log Error
+            //\Log::error('Module Icommercexpay: Message: '.$e->getMessage());
+            //\Log::error('Module Icommercexpay: Code: '.$e->getCode());
+
+        }
+
+        return response()->json($response, $status ?? 200);
     }
 
 
