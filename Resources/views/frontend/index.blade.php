@@ -103,7 +103,7 @@ var index_xpay = new Vue({
 
       this.loading = true;
       let path = "{{route('icommercexpay.api.xpay.createPayment')}}"
-      let attributes2 = {token:'123'}
+      let attributes2 = {token:'123',encrp:this.data.encrp}
 
       axios.post(path, {attributes:attributes2})
       .then(response => {

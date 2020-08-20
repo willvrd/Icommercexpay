@@ -58,7 +58,6 @@ class PublicController extends BasePublicController
                 throw new \Exception($infor->errors, 204);
             }
             */
-        
             
             // GET CURRENCIES
             /*

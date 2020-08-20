@@ -136,14 +136,9 @@ class IcommerceXpayApiController extends BaseApiController
 
             $params = array(
                 "email" => $paymentMethod->options->user,
-                "password" => $paymentMethod->options->password
+                "password" => $paymentMethod->options->pass
             );
 
-            $params = array(
-                "email" => 'alejandra.barrera.q@hotmail.com',
-                "password" => 'Metka-2020'
-            );
-            
             // SEND DATA xPay AND GET URL
             $client = new \GuzzleHttp\Client();
             $response= $client->request('POST', $endPoint, [
@@ -179,16 +174,13 @@ class IcommerceXpayApiController extends BaseApiController
 
         try {
 
-            $data = $request->all();
             $paymentMethod = $this->getPaymentMethodConfiguration();
-           
-            /*
             if($paymentMethod->options->mode=="sandbox")
                 $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
             else
                 $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
-            */
            
+            //SANDBOX ERROR
             $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->amount}/{$request->currency}/";
 
             // SEND DATA xPay AND GET URL
@@ -225,23 +217,23 @@ class IcommerceXpayApiController extends BaseApiController
             $data = $request['attributes'] ?? [];//Get data
             
             $paymentMethod = $this->getPaymentMethodConfiguration();
-           
-            /*
             if($paymentMethod->options->mode=="sandbox")
                 $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
             else
                 $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
-            */
            
+            //SANDBOX ERROR
             $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
             
+            $infor = xpay_DecriptUrl($data['encrp']);
+            $order = $this->order->find($infor[0]);
             
             $params = array(
                 "src_currency" => "BTC",
-                "amount" => 25000,
+                "amount" => $order->total,
                 "exchange_id" => 1,
-                "tgt_currency" => "COC",
-	            "callback" => "http://localhost:8000/perrito"
+                "tgt_currency" => $order->currency_code,
+	            "callback" => route('icommercexpay.api.xpay.response')
             );
 
             // SEND DATA xPay AND GET URL
