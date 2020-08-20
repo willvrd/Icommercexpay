@@ -222,6 +222,8 @@ class IcommerceXpayApiController extends BaseApiController
     public function createPayment(Request $request){
         try {
 
+            $data = $request['attributes'] ?? [];//Get data
+            
             $paymentMethod = $this->getPaymentMethodConfiguration();
            
             /*
@@ -248,7 +250,7 @@ class IcommerceXpayApiController extends BaseApiController
                 'body' => json_encode($params),
                 'headers' => [
                     'Content-Type'     => 'application/json',
-                    'Authorization' => "Token ".'123',
+                    'Authorization' => "Token ".$data['token']
                 ]
             ]);
             

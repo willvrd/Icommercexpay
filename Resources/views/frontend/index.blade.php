@@ -91,10 +91,26 @@ var index_xpay = new Vue({
     generatePayment(){
 
       this.loading = true;
+      let path = "{{route('icommercexpay.api.xpay.createPayment')}}"
+      let attributes2 = {token:'123'}
 
-      console.warn("generate payment")
+      axios.post(path, {attributes:attributes2})
+      .then(response => {
+                //this.data = response.data.data;
+        console.warn(response)  
 
-      this.loading = false;
+      })
+      .catch(error => {
+
+        if (error.response)
+          console.log(error.response.data.errors)
+
+        this.dataError = true;
+       
+      })
+      .finally(() => this.loading = false)
+      
+     
     },
     onStep(nextStep){
       this.currentStep = nextStep;
