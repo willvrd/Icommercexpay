@@ -88,6 +88,28 @@ var index_xpay = new Vue({
     dataError: {!! $dataError['status'] ? $dataError['status']: 0 !!},
     dataErrorMsj: {!! $dataError['msj'] ? $dataError['msj']: 0 !!},
     data: {!! json_encode($data) !!},
+    currencies: [
+      {
+        "currency": {
+            "code": "XPAY",
+            "name": "XPAY",
+            "symbol": "COC",
+            "type": "wallet"
+        },
+        "amount": "1000.00",
+        "exchange": 0
+      },
+      {
+        "currency": {
+          "code": "WGOC",
+          "name": "GoCrypto",
+          "symbol": "COC",
+          "type": "wallet"
+        },
+        "amount": "1000.00",
+        "exchange": 6
+      }
+    ],
     selectedCurrency: null
   }, 
   methods: {
@@ -97,13 +119,22 @@ var index_xpay = new Vue({
 
       if(this.dataError)
         console.error(this.dataErrorMsj)
+
+      console.warn(this.currencies)
         
     },
     generatePayment(){
 
+      console.warn(this.selectedCurrency)
+
       this.loading = true;
       let path = "{{route('icommercexpay.api.xpay.createPayment')}}"
-      let attributes2 = {token:'123',encrp:this.data.encrp}
+      let attributes2 = {
+        token:'123',
+        encrp:this.data.encrp,
+        srcCurrency: this.selectedCurrency.currency.code,
+        exchangeId: this.selectedCurrency.exchange
+      }
 
       axios.post(path, {attributes:attributes2})
       .then(response => {

@@ -206,9 +206,9 @@ class IcommerceXpayApiController extends BaseApiController
      /**
      * XPAY API - Create Payment Transaction
      * @param Requests Token
-     * @param Requests Order ID
-     * @param Requests src_currency
-     * @param Requests exchange_id
+     * @param Requests encrp
+     * @param Requests srcCurrency
+     * @param Requests exchangeId
      * @return Json Information
      */
     public function createPayment(Request $request){
@@ -229,9 +229,9 @@ class IcommerceXpayApiController extends BaseApiController
             $order = $this->order->find($infor[0]);
             
             $params = array(
-                "src_currency" => "BTC",
+                "src_currency" =>  $data['srcCurrency'],
                 "amount" => $order->total,
-                "exchange_id" => 1,
+                "exchange_id" => $data['exchangeId'],
                 "tgt_currency" => $order->currency_code,
 	            "callback" => route('icommercexpay.api.xpay.response')
             );
