@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Modules\Core\Http\Controllers\BasePublicController;
 use Modules\Icommercexpay\Http\Controllers\Api\IcommerceXpayApiController;
 
+// Repositories
+use Modules\Icommerce\Repositories\OrderRepository;
+
 //Others
 use Modules\Setting\Contracts\Setting;
 
@@ -17,34 +20,32 @@ class PublicController extends BasePublicController
   
     private $setting;
     private $xpayApiController;
+    private $order;
 
     public function __construct(
         Setting $setting,
-        IcommerceXpayApiController $xpayApiController
+        IcommerceXpayApiController $xpayApiController,
+        OrderRepository $order
     )
     {
         $this->setting = $setting;
         $this->xpayApiController = $xpayApiController;
+        $this->order = $order;
     }
 
      /**
-     * Show Voucher
+     * index Public
      * @param  $request
      * @return view
      */
     public function index(Request $request){
 
-        $dataError["status"] = false;
-        $dataError["msj"] = false;
-        
+        // Init Data 
+        $resultInit = $this->initData($request);
+        $data = $resultInit["data"];
+        $dataError = $resultInit["dataError"];
+
         try{
-
-            // Decr
-            $infor = xpay_DecriptUrl($request->eUrl);
-            $orderID = $infor[0];
-            $transactionID = $infor[1];
-
-            // SEARCH ORDER
 
             // GET TOKEN
             /*
@@ -75,12 +76,7 @@ class PublicController extends BasePublicController
             }
             */
           
-            $data = [
-                'tXpay' => "token",
-                'currencies' => "currencies",
-                'orderID' => $orderID,
-                'transactionID' => $transactionID
-            ];
+            
       
         }catch(\Exception $e){
 
@@ -94,6 +90,39 @@ class PublicController extends BasePublicController
         $tpl ='icommercexpay::frontend.index';
         return view($tpl,compact('data','dataError'));
        
+    }
+
+    /**
+     * Init Data Index
+     * @param  $request
+     * @return array result
+     */
+    public function initData(Request $request){
+        
+        $result = [];
+
+        $data = [];
+        $dataError["status"] = false;
+        $dataError["msj"] = false;
+        
+        try{
+
+            $infor = xpay_DecriptUrl($request->eUrl);
+            $order = $this->order->find($infor[0]);
+
+            $data["order"] = $order;
+            $data["encrp"] = $request->eUrl;
+
+        }catch(\Exception $e){
+            $dataError["status"] = true;
+            $dataError["msj"] = json_encode($e->getMessage());
+        }
+
+        // Results
+        $result['data'] = $data;
+        $result['dataError'] = $dataError;
+
+        return $result;
     }
 
 }

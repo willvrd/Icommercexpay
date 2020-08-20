@@ -18,40 +18,51 @@
   
     <div class="container">
 
+      <h2 class="text-center font-weight-bold mt-5">Bienvenido</h2>
+      <hr>
+
       <div class="row my-5 justify-content-center">
-      <div class="col-xs-12 col-sm-8">
 
+        <div class="col-xs-12 col-sm-8">
+        
+          <div v-if="success" class="card text-center">
 
-        <div v-if="success" class="card text-center">
-
-          <div class="card-header bg-secondary">
-            <h2 class="font-weight-bold text-white">xPay</h2>
-          </div>
-
-          @include("icommercexpay::frontend.partials.loading")
-
-          <div v-if="!dataError" class="card-body py-5 px-4">
-
-              @include("icommercexpay::frontend.partials.currencies")
- 
-              @include("icommercexpay::frontend.partials.payment")
-
-          </div>
-
-          <div v-else class="card-body py-5 px-4">
-            <div class="alert alert-danger" role="alert">
-              Ha ocurrido un error comuniquese con el administrador
+            <div class="card-header bg-secondary">
+              <h3 class="font-weight-bold text-white">xPay</h3>
             </div>
-          </div>
 
-          <div class="card-footer text-muted">
-            xPay - {{date('Y')}}
-          </div>
+            @include("icommercexpay::frontend.partials.loading")
 
+            <div v-if="!dataError" class="card-body py-5 px-4">
+
+                @include("icommercexpay::frontend.partials.currencies")
+  
+                @include("icommercexpay::frontend.partials.payment")
+
+            </div>
+
+            <div v-else class="card-body py-5 px-4">
+              <div class="alert alert-danger" role="alert">
+                Ha ocurrido un error comuniquese con el administrador
+              </div>
+            </div>
+
+            <div class="card-footer text-muted">
+              xPay - {{date('Y')}}
+            </div>
+
+          </div>
+      
         </div>
-    
+
+
+        <div class="col-xs-12 col-sm-4">
+          @include("icommercexpay::frontend.partials.information")
+        </div>
+      
       </div>
-      </div>
+
+      <hr>
 
     </div>
 
