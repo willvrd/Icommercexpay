@@ -237,6 +237,7 @@ class IcommerceXpayApiController extends BaseApiController
             );
 
             // SEND DATA xPay AND GET URL
+            /*
             $client = new \GuzzleHttp\Client();
             $response= $client->request('POST', $endPoint, [
                 'body' => json_encode($params),
@@ -245,7 +246,13 @@ class IcommerceXpayApiController extends BaseApiController
                     'Authorization' => "Token ".$data['token']
                 ]
             ]);
+            */
             
+            // Just Testing
+            $qr = "bitcoin:2NFDrzKrRJWiDf8G2A6zgWhJoDZSVPksDYK?amount=0.00355401&label=Fruits+by+Xpay&message=Pago+en+Fruits+by+Xpay&xpay=payprovider%3B6fctLV6";
+            $qrImg = "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=".$qr;
+            $response["qrImg"] = $qrImg;
+
         }catch(\Exception $e){
             
             $status = 500;

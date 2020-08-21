@@ -88,6 +88,7 @@ var index_xpay = new Vue({
     dataError: {!! $dataError['status'] ? $dataError['status']: 0 !!},
     dataErrorMsj: {!! $dataError['msj'] ? $dataError['msj']: 0 !!},
     data: {!! json_encode($data) !!},
+    dataPayment:null,
     currencies: [
       {
         "currency": {
@@ -120,12 +121,12 @@ var index_xpay = new Vue({
       if(this.dataError)
         console.error(this.dataErrorMsj)
 
-      console.warn(this.currencies)
+      //console.warn(this.currencies)
         
     },
     generatePayment(){
 
-      console.warn(this.selectedCurrency)
+      //console.warn(this.selectedCurrency)
 
       this.loading = true;
       let path = "{{route('icommercexpay.api.xpay.createPayment')}}"
@@ -138,9 +139,10 @@ var index_xpay = new Vue({
 
       axios.post(path, {attributes:attributes2})
       .then(response => {
-                //this.data = response.data.data;
-        console.warn(response)  
+        this.dataPayment = response.data;
 
+        console.warn(this.dataPayment)
+        
       })
       .catch(error => {
 

@@ -59,6 +59,7 @@ class PublicController extends BasePublicController
             }
             */
             
+            
             // GET CURRENCIES
             /*
             $response = $this->xpayApiController->getCurrencies(new Request([
