@@ -250,8 +250,22 @@ class IcommerceXpayApiController extends BaseApiController
             
             // Just Testing
             $qr = "bitcoin:2NFDrzKrRJWiDf8G2A6zgWhJoDZSVPksDYK?amount=0.00355401&label=Fruits+by+Xpay&message=Pago+en+Fruits+by+Xpay&xpay=payprovider%3B6fctLV6";
-            $qrImg = "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=".$qr;
-            $response["qrImg"] = $qrImg;
+            $qrImg = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=".$qr."&choe=UTF-8";
+            
+            $response = [
+                "status" => "sending",
+                "wallet" => "XXXxxXXXXXXXXXxxxxXXXXXxxxXX",
+                "amount_to_paid" => "0.00000000",
+                "currency_to_paid" => "BTC",
+                "waiting_time" => "1200.00",
+                "waiting_time_unit" => "seconds",
+                "string_waiting_time" => "1200.00 seconds",
+                "qrImg" => $qrImg
+            ];
+
+           
+   
+    
 
         }catch(\Exception $e){
             

@@ -122,7 +122,6 @@ var index_xpay = new Vue({
         console.error(this.dataErrorMsj)
 
       //console.warn(this.currencies)
-        
     },
     generatePayment(){
 
@@ -142,6 +141,8 @@ var index_xpay = new Vue({
         this.dataPayment = response.data;
 
         console.warn(this.dataPayment)
+
+        this.initTime();
         
       })
       .catch(error => {
@@ -160,6 +161,37 @@ var index_xpay = new Vue({
       this.currentStep = nextStep;
       this.generatePayment();
     },
+    initTime(){
+      if(this.dataPayment){
+        let xpaytoreload = 0;
+        let waitingTime = this.dataPayment.waiting_time;
+        var xpaytimer = setInterval(function(){
+          if (typeof jQuery == 'undefined') return;
+          var $ = jQuery;
+          var t = $('#xpay-timer');
+          if (t.length > 0) {
+            ++xpaytoreload;
+            var s = waitingTime;
+            --s;
+            --waitingTime;
+            if (s < 0) {
+              t.html('EXPIRADO');
+
+              let redirect = "{{url("/")}}"; 
+              window.location.href= redirect;
+
+              clearInterval(xpaytimer);
+              return;
+            }
+            var mm = parseInt(s/60);
+            var ss = s%60;
+            if (mm < 10) mm = '0'+mm;
+            if (ss < 10) ss = '0'+ss;
+            t.html(mm+':'+ss);
+          }
+        }, 950);
+      }
+    }
    
   }
 })

@@ -2,22 +2,30 @@
 
     <h5 class="card-title font-weight-bold">Proceso de Pago</h5>
 
-    <div v-if="dataPayment" class="qr">
-        <img :src="dataPayment.qrImg" alt="QR code">
-    </div>
+    <div v-if="dataPayment && dataPayment.status=='sending' " class="infor">
 
-    <div class="infor">
-
-        <div class="amount mb-2">
-            <h6>Monto a pagar en: XXX</h6>
-            <div class="cant">0.000000</div>
+        <div class="qr">
+            <img :src="dataPayment.qrImg" alt="QR code">
         </div>
-
-        <div class="wallet mb-2">
-            <h6>Wallet</h6>
-            <div class="cod">2NFDrzKrRJWiDf8G2A6zgWhJoDZSVPksDYK</div>
-        </div>
-        
-    </div>
     
+        <div class="infor">
+    
+            <div class="amount mb-2">
+                <h6>Monto a pagar en: @{{dataPayment.currency_to_paid}}</h6>
+                <div class="cant">@{{dataPayment.amount_to_paid}}</div>
+            </div>
+    
+            <div class="wallet mb-2">
+                <h6>Wallet</h6>
+                <div class="cod">@{{dataPayment.wallet}}</div>
+            </div>
+            
+        </div>
+    
+        <div class="timer">
+            <b id="xpay-timer"></b>
+        </div>
+
+    </div>
+   
 </div>
