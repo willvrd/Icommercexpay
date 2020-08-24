@@ -58,26 +58,20 @@ class PublicController extends BasePublicController
                 throw new \Exception($infor->errors, 204);
             }
             */
-            
-            
+           
             // GET CURRENCIES
-            /*
             $response = $this->xpayApiController->getCurrencies(new Request([
-                "token" => "123",
-                "amount" => 25000,
-                "currency" => "COP"
+                "order" => $data["order"]
             ]));
-            $inforCurrencies = $response->getData();
 
-            if(isset($inforCurrencies->data)){
-                $currencies =  $inforCurrencies->data;
-            }else{
-                throw new \Exception($inforCurrencies->errors, 204);
-            }
-            */
-          
+            $resData =  json_decode($response->getData());
             
-      
+            if(isset($resData->available_currencies)){
+                $data["currencies"] = $resData->available_currencies;
+            }else{
+                throw new \Exception($resData->errors, 204);
+            }
+            
         }catch(\Exception $e){
 
             //\Log::error('Module Icommercexpay - index: Message: '.$e->getMessage());

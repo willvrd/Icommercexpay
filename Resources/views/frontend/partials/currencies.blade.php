@@ -5,7 +5,7 @@
     <form @submit.prevent="onStep(2)">
 
         <select class="custom-select" v-model="selectedCurrency" required>
-            <option v-for="(crc,index) in currencies" :key="index" :value="crc">
+            <option v-for="(crc,index) in data.currencies" :key="index" :value="crc">
                 @{{crc.currency.name}} - Monto: @{{crc.amount}}
             </option>
         </select>

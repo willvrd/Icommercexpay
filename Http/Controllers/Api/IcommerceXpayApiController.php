@@ -10,6 +10,8 @@ use Modules\Icommercexpay\Http\Requests\InitRequest;
 // Base Api
 use Modules\Icommerce\Http\Controllers\Api\OrderApiController;
 use Modules\Icommerce\Http\Controllers\Api\TransactionApiController;
+use Modules\Icommerce\Http\Controllers\Api\OrderStatusHistoryApiController;
+
 use Modules\Ihelpers\Http\Controllers\Api\BaseApiController;
 
 // Repositories
@@ -28,6 +30,7 @@ class IcommerceXpayApiController extends BaseApiController
     private $paymentMethod;
     private $order;
     private $orderController;
+    private $orderHistory;
     private $transaction;
     private $transactionController;
 
@@ -41,6 +44,7 @@ class IcommerceXpayApiController extends BaseApiController
         PaymentMethodRepository $paymentMethod,
         OrderRepository $order,
         OrderApiController $orderController,
+        OrderStatusHistoryApiController $orderHistory,
         TransactionRepository $transaction,
         TransactionApiController $transactionController
     ){
@@ -49,6 +53,7 @@ class IcommerceXpayApiController extends BaseApiController
         $this->paymentMethod = $paymentMethod;
         $this->order = $order;
         $this->orderController = $orderController;
+        $this->orderHistory = $orderHistory;
         $this->transaction = $transaction;
         $this->transactionController = $transactionController;
 
@@ -74,7 +79,7 @@ class IcommerceXpayApiController extends BaseApiController
             $this->validateRequestApi(new InitRequest($data));
          
             $orderID = $request->orderID;
-            //\Log::info('Module Icommercexpay: Init-ID:'.$orderID);
+            \Log::info('Module Icommercexpay: Init-ID:'.$orderID);
 
             $paymentMethod = $this->getPaymentMethodConfiguration();
 
@@ -167,9 +172,7 @@ class IcommerceXpayApiController extends BaseApiController
 
      /**
      * XPAY API - Get Available currencies
-     * @param Requests token
-     * @param Requests amount
-     * @param Requests currency
+     * @param Requests Order
      * @return array currencies
      */
     public function getCurrencies(Request $request){
@@ -178,21 +181,25 @@ class IcommerceXpayApiController extends BaseApiController
 
             $paymentMethod = $this->getPaymentMethodConfiguration();
             if($paymentMethod->options->mode=="sandbox")
-                $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
+                $endPoint = self::URL_SANDBOX.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
             else
-                $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
+                $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
            
             //SANDBOX ERROR
-            $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->amount}/{$request->currency}/";
+            $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
 
-            // SEND DATA xPay AND GET URL
+           
+            // SEND DATA xPay AND Currencies
             $client = new \GuzzleHttp\Client();
-            $response = $client->request('GET', $endPoint, [
+            $res = $client->request('GET', $endPoint, [
                 'headers' => [
-                    'Authorization' => "Token ".$request->token,
+                    'Authorization' => 'Token '.$paymentMethod->options->token
                 ]
             ]);
-           
+
+            $response = $res->getBody()->getContents();
+
+
         } catch (\Exception $e) {
             $status = 500;
             $response = [
@@ -206,8 +213,7 @@ class IcommerceXpayApiController extends BaseApiController
 
 
      /**
-     * XPAY API - Create Payment Transaction
-     * @param Requests Token
+     * Create Payment
      * @param Requests encrp
      * @param Requests srcCurrency
      * @param Requests exchangeId
@@ -219,80 +225,84 @@ class IcommerceXpayApiController extends BaseApiController
             $data = $request['attributes'] ?? [];//Get data
             
             $paymentMethod = $this->getPaymentMethodConfiguration();
-            if($paymentMethod->options->mode=="sandbox")
-                $endPoint = self::URL_SANDBOX.$this->urls["getTokenLogin"];
-            else
-                $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
-           
-            //SANDBOX ERROR
-            $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
             
             $infor = xpay_DecriptUrl($data['encrp']);
+
             $order = $this->order->find($infor[0]);
+            \Log::info('Module Icommercexpay: createPayment - OrderID: '.$order->id);
+            \Log::info('Module Icommercexpay: createPayment - TransactionID: '.$infor[1]);
+           
+            // Transaction XPAY
+            $res = $this->createTransaction($paymentMethod,$data,$order); 
+            $data = json_decode($res->getBody()->getContents());
             
-            $params = array(
-                "src_currency" =>  $data['srcCurrency'],
-                "amount" => $order->total,
-                "exchange_id" => $data['exchangeId'],
-                "tgt_currency" => $order->currency_code,
-	            "callback" => route('icommercexpay.api.xpay.response')
-            );
-
-            // SEND DATA xPay AND GET URL
-            /*
-            $client = new \GuzzleHttp\Client();
-            $response= $client->request('POST', $endPoint, [
-                'body' => json_encode($params),
-                'headers' => [
-                    'Content-Type'     => 'application/json',
-                    'Authorization' => "Token ".$data['token']
-                ]
-            ]);
-
-            dd($response);
-            //$data = json_decode($response->getBody());
-            if($response->id){
+            if($data->id){
+                \Log::info('Module Icommercexpay: createPayment - XpayTransactionId: '.$data->id);
+                
                 $transactionUp = $this->validateResponseApi(
                     $this->transactionController->update($infor[1],new Request([
-                        'external_code' => $response->id
+                        'external_code' => $data->id
                     ]))
                 );
+               
+                $qrImg = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=".$data->qr."&choe=UTF-8";
+                
+                $response = $data;
+                $response->qrImg = $qrImg;
+            }else{
+                throw new \Exception($data->error, 204);
             }
-
-            */
-            
-
-            // Just Testing
-            $qr = "bitcoin:2NFDrzKrRJWiDf8G2A6zgWhJoDZSVPksDYK?amount=0.00355401&label=Fruits+by+Xpay&message=Pago+en+Fruits+by+Xpay&xpay=payprovider%3B6fctLV6";
-            $qrImg = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=".$qr."&choe=UTF-8";
-            
-            $response = [
-                "status" => "sending",
-                "wallet" => "XXXxxXXXXXXXXXxxxxXXXXXxxxXX",
-                "amount_to_paid" => "0.00000000",
-                "currency_to_paid" => "BTC",
-                "waiting_time" => "1200.00",
-                "waiting_time_unit" => "seconds",
-                "string_waiting_time" => "1200.00 seconds",
-                "qrImg" => $qrImg
-            ];
-
-           
-   
-    
 
         }catch(\Exception $e){
             $status = 500;
             $response = [
               'errors' => $e->getMessage()
             ];
-            \Log::error('Module Icommercexpay: Message: '.$e->getMessage());
-            \Log::error('Module Icommercexpay: Code: '.$e->getCode());
+            \Log::error('Module Icommercexpay: Create Payment - Message: '.$e->getMessage());
+            \Log::error('Module Icommercexpay: Create Payment - Code: '.$e->getCode());
         }
 
         return response()->json($response, $status ?? 200);
     }
 
+     /**
+     * XPAY API - Create Transaction
+     * @param Requests paymentMethod
+     * @param Requests data
+     * @param Requests order
+     * @return Json Information
+     */
+    public function createTransaction($paymentMethod,$data,$order){
+
+        if($paymentMethod->options->mode=="sandbox")
+            $endPoint = self::URL_SANDBOX.$this->urls["createPayment"];
+        else
+            $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
+
+        //SANDBOX ERROR
+        $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
+
+        $params = array(
+            "src_currency" =>  $data['srcCurrency'],
+            "amount" => $order->total,
+            "exchange_id" => $data['exchangeId'],
+            "tgt_currency" => $order->currency_code,
+            "callback" => route('icommercexpay.api.xpay.response')
+        );
+
+        //Type raw
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', $endPoint, [
+            'body' => json_encode($params),
+            'headers' => [
+                'Content-Type'     => 'application/json',
+                'Authorization' => "Token ".$paymentMethod->options->token
+            ]
+        ]);
+
+        return $response;
+
+    }
 
      /**
      * Response Callback
@@ -302,17 +312,16 @@ class IcommerceXpayApiController extends BaseApiController
     public function response(Request $request){
         try {
 
-            \Log::info('Module Icommercexpay: Response - '.time());
+            \Log::info('Module Icommercexpay: Response - Request ID: '.$request->id);
 
             $transaction = TransEnti::where('external_code',$request->id)->latest()->first();
 
-            \Log::info('Module Icommercexpay: orderID: '.$transaction->order->id);
+            \Log::info('Module Icommercexpay: orderID: '.$transaction->order_id);
             \Log::info('Module Icommercexpay: transactionID: '.$transaction->id);
 
-
             // Update Order
-            $orderUP = $this->updateInformation($request->status,$transaction);
-           
+            $orderUP = $this->updateInformation($request,$transaction);
+            
         }catch(\Exception $e){
 
             //Log Error
@@ -342,8 +351,11 @@ class IcommerceXpayApiController extends BaseApiController
      * @param
      * @return orderUpdated
      */
-    public function updateInformation($orderStatus,$transaction){
+    public function updateInformation($request,$transaction){
        
+        $orderStatus = $request->status;
+        $xpayId = $request->id;
+
         if($orderStatus=="sending"){
             //waiting for payment
             $newstatusOrder = 1; //Processing
@@ -368,7 +380,7 @@ class IcommerceXpayApiController extends BaseApiController
             $newstatusOrder = 7; // Status Order Failed
         }
 
-        \Log::info('Module Icommercecredibanco: New Status Order: '.$newstatusOrder);
+        \Log::info('Module Icommercexpay: New Status Order: '.$newstatusOrder);
 
          // Update Transaction
          $transaction = $this->validateResponseApi(
@@ -376,18 +388,30 @@ class IcommerceXpayApiController extends BaseApiController
                 'status' => $newstatusOrder
             ]))
         );
-        \Log::info('Module Icommercecredibanco: Transaction Updated');
+        \Log::info('Module Icommercexpay: Transaction Updated');
 
         // Update Order
         $orderUP = $this->validateResponseApi(
-            $this->orderController->update($order->id,new Request(
+            $this->orderController->update($transaction->order_id,new Request(
               ["attributes" =>[
-                'order_id' => $transaction->order->id,
+                'order_id' => $transaction->order_id,
                 'status_id' => $newstatusOrder
               ]
               ]))
         ); 
-        \Log::info('Module Icommercecredibanco: Order Updated');
+        \Log::info('Module Icommercexpay: Order Updated');
+        
+        // Create History
+        $comment = "Xpay: ".$orderStatus." - Transaction: ".$xpayId;
+        $this->orderHistory->create(new Request([
+                "attributes" =>[
+                    'order_id' => $transaction->order_id,
+                    'status' => $newstatusOrder,
+                    'notify' => 1,
+                    'comment' => $comment
+                ]
+            ]
+        ));
        
         return $orderUP;
 
