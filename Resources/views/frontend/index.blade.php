@@ -39,6 +39,8 @@
   
                 @include("icommercexpay::frontend.partials.payment")
 
+                @include("icommercexpay::frontend.partials.finished")
+
             </div>
 
             <div v-else class="card-body py-5 px-4">
@@ -130,7 +132,9 @@ var index_xpay = new Vue({
     },
     onStep(nextStep){
       this.currentStep = nextStep;
-      this.generatePayment();
+      if(this.currentStep==2)
+        this.generatePayment();
+      
     },
     initTime(){
       if(this.dataPayment){
