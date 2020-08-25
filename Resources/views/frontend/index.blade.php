@@ -104,7 +104,7 @@ var index_xpay = new Vue({
 
       if(this.dataError)
         console.error(this.dataErrorMsj)
-      this.initPush()
+
     },
     generatePayment(){
 
@@ -119,6 +119,7 @@ var index_xpay = new Vue({
       axios.post(path, {attributes:attributes2})
       .then(response => {
         this.dataPayment = response.data;
+        this.initPush()
         this.initTime();
       })
       .catch(error => {
@@ -133,15 +134,20 @@ var index_xpay = new Vue({
       
      
     },
+    finishedPayment(){
+      console.warn(this.dataEvent)
+      let redirect = "{{url("/")}}"; 
+      setTimeout(function () {
+        window.location.href = redirect;
+      }, 5000); 
+    },
     onStep(nextStep){
       this.currentStep = nextStep;
       if(this.currentStep==2)
         this.generatePayment();
 
-      if(this.currentStep==3){
-        console.warn(this.dataEvent)
-      }
-
+      if(this.currentStep==3)
+        this.finishedPayment();
     },
     initTime(){
       if(this.dataPayment){
@@ -200,8 +206,7 @@ var index_xpay = new Vue({
       });
     
     }
-    
-   
+  
   }
 })
 

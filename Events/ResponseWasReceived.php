@@ -29,7 +29,7 @@ class ResponseWasReceived implements ShouldBroadcast
   {
     return [
       'xpayTranId' => $this->infor["xpayTranId"],
-      'xpayTranStatus' => $this->infor["xpayTranId"],
+      'xpayTranStatus' => $this->infor["xpayTranStatus"],
       'orderId' => $this->infor["orderId"]
     ];
   }
