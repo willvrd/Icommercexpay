@@ -8,7 +8,8 @@
     "order": 1,
     "providers": [
         "Modules\\Icommercexpay\\Providers\\IcommercexpayServiceProvider",
-        "Modules\\Icommercexpay\\Providers\\RouteServiceProvider"
+        "Modules\\Icommercexpay\\Providers\\RouteServiceProvider",
+        "Modules\\Icommercexpay\\Providers\\EventServiceProvider"
     ],
     "aliases": {},
     "files": [

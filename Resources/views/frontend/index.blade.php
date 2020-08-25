@@ -75,7 +75,10 @@
 
 @section('scripts')
 @parent
+<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+
 <script type="text/javascript">
+
 var index_xpay = new Vue({
   el: '#content_xpay',
   created() {
@@ -91,7 +94,8 @@ var index_xpay = new Vue({
     dataErrorMsj: {!! $dataError['msj'] ? $dataError['msj']: 0 !!},
     data: {!! json_encode($data) !!},
     dataPayment:null,
-    selectedCurrency: null
+    selectedCurrency: null,
+    dataEvent:null
   }, 
   methods: {
     init(){
@@ -100,8 +104,7 @@ var index_xpay = new Vue({
 
       if(this.dataError)
         console.error(this.dataErrorMsj)
-
-      //console.warn(this.currencies)
+      this.initPush()
     },
     generatePayment(){
 
@@ -134,7 +137,11 @@ var index_xpay = new Vue({
       this.currentStep = nextStep;
       if(this.currentStep==2)
         this.generatePayment();
-      
+
+      if(this.currentStep==3){
+        console.warn(this.dataEvent)
+      }
+
     },
     initTime(){
       if(this.dataPayment){
@@ -166,7 +173,34 @@ var index_xpay = new Vue({
           }
         }, 950);
       }
+    },
+    initPush(){
+
+      // Enable pusher logging - don't include this in production
+      Pusher.logToConsole = true;
+
+      let p_app_key = "{!!env('PUSHER_APP_KEY')!!}"
+      let p_app_cluster = "{!!env('PUSHER_APP_CLUSTER')!!}"
+
+      var pusher = new Pusher(p_app_key, {
+        cluster: p_app_cluster,
+        encrypted: true
+      });
+
+      var myEvent = "responseXpay"+this.data.order.id
+      var channel = pusher.subscribe('global');
+     
+      channel.bind(myEvent, function(data) {
+        index_xpay.dataEvent = {
+          xpayTranId:data.xpayTranId,
+          xpayTranStatus:data.xpayTranStatus,
+          orderId:data.orderId
+        }
+        index_xpay.onStep(3)
+      });
+    
     }
+    
    
   }
 })
