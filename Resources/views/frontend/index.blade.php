@@ -23,7 +23,7 @@
 
       <div class="row my-5 justify-content-center">
 
-        <div class="col-xs-12 col-sm-8">
+        <div class="col-xs-12 col-md-8">
         
           <div v-if="success" class="card text-center">
 
@@ -58,7 +58,7 @@
         </div>
 
 
-        <div class="col-xs-12 col-sm-4">
+        <div class="col-xs-12 col-md-4">
           @include("icommercexpay::frontend.partials.information")
         </div>
       
@@ -141,7 +141,7 @@ var index_xpay = new Vue({
         window.location.href = redirect;
       }, 5000); 
     },
-    onStep(nextStep){
+    onStep(nextStep
       this.currentStep = nextStep;
       if(this.currentStep==2)
         this.generatePayment();
