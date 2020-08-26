@@ -316,17 +316,13 @@ class IcommerceXpayApiController extends BaseApiController
         try {
 
             \Log::info('Module Icommercexpay: Response - Request ID: '.$request->id);
+            \Log::info('Module Icommercexpay: Response - xPay Status: '.$request->status);
             
             $transaction = TransEnti::where('external_code',$request->id)->latest()->first();
 
-            \Log::info('Module Icommercexpay: orderID: '.$transaction->order_id);
-            \Log::info('Module Icommercexpay: transactionID: '.$transaction->id);
-
             // Update Order
-            /*
             $orderUP = $this->updateInformation($request,$transaction);
-            */
-
+        
             $resp["xpayTranId"] = $request->id;
             $resp["xpayTranStatus"] = $request->status;
             $resp["orderId"] =$transaction->order_id;
@@ -399,8 +395,7 @@ class IcommerceXpayApiController extends BaseApiController
                 'status' => $newstatusOrder
             ]))
         );
-        \Log::info('Module Icommercexpay: Transaction Updated');
-
+       
         // Update Order
         $orderUP = $this->validateResponseApi(
             $this->orderController->update($transaction->order_id,new Request(
@@ -410,7 +405,6 @@ class IcommerceXpayApiController extends BaseApiController
               ]
               ]))
         ); 
-        \Log::info('Module Icommercexpay: Order Updated');
         
         // Create History
         $comment = "Xpay: ".$orderStatus." - Transaction: ".$xpayId;
