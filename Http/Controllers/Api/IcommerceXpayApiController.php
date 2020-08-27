@@ -248,7 +248,7 @@ class IcommerceXpayApiController extends BaseApiController
                     ]))
                 );
                
-                $qrImg = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=".$data->qr."&choe=UTF-8";
+                $qrImg = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=".urlencode($data->qr)."&choe=UTF-8";
                 
                 $response = $data;
                 $response->qrImg = $qrImg;
