@@ -64,6 +64,11 @@ class PublicController extends BasePublicController
                 "order" => $data["order"]
             ]));
 
+            // Response Fail
+            if(isset($response->getData()->errors))
+                throw new \Exception($response->getData()->errors, 204);
+
+            // Format OK Response
             $resData =  json_decode($response->getData());
             
             if(isset($resData->available_currencies)){
