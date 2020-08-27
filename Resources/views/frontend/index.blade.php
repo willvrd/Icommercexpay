@@ -135,13 +135,13 @@ var index_xpay = new Vue({
      
     },
     finishedPayment(){
-      console.warn(this.dataEvent)
+      //console.warn(this.dataEvent)
       let redirect = "{{url("/")}}"; 
       setTimeout(function () {
         window.location.href = redirect;
       }, 5000); 
     },
-    onStep(nextStep
+    onStep(nextStep){
       this.currentStep = nextStep;
       if(this.currentStep==2)
         this.generatePayment();
