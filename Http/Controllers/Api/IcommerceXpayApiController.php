@@ -141,9 +141,6 @@ class IcommerceXpayApiController extends BaseApiController
             else
                 $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
             
-            //SANDBOX ERROR
-            $endPoint = self::URL_PRODUCTION.$this->urls["getTokenLogin"];
-
             $params = array(
                 "email" => $paymentMethod->options->user,
                 "password" => $paymentMethod->options->pass
@@ -188,10 +185,7 @@ class IcommerceXpayApiController extends BaseApiController
             else
                 $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
            
-            //SANDBOX ERROR
-            $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
-
-           
+            
             // SEND DATA xPay AND Currencies
             $client = new \GuzzleHttp\Client();
             $res = $client->request('GET', $endPoint, [
@@ -281,9 +275,6 @@ class IcommerceXpayApiController extends BaseApiController
             $endPoint = self::URL_SANDBOX.$this->urls["createPayment"];
         else
             $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
-
-        //SANDBOX ERROR
-        $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
 
         $params = array(
             "src_currency" =>  $data['srcCurrency'],
