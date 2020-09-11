@@ -180,8 +180,9 @@ class IcommerceXpayApiController extends BaseApiController
         try {
 
             $paymentMethod = $this->getPaymentMethodConfiguration();
+
             if($paymentMethod->options->mode=="sandbox")
-                $endPoint = self::URL_SANDBOX.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
+                $endPoint = self::URL_SANDBOX.$this->urls["getCurrencies"]."{$request->order->total}/COC/";
             else
                 $endPoint = self::URL_PRODUCTION.$this->urls["getCurrencies"]."{$request->order->total}/{$request->order->currency_code}/";
            
@@ -271,16 +272,19 @@ class IcommerceXpayApiController extends BaseApiController
      */
     public function createTransaction($paymentMethod,$data,$order){
 
-        if($paymentMethod->options->mode=="sandbox")
+        if($paymentMethod->options->mode=="sandbox"){
             $endPoint = self::URL_SANDBOX.$this->urls["createPayment"];
-        else
+            $tgtCurrency =  "COC";
+        }else{
             $endPoint = self::URL_PRODUCTION.$this->urls["createPayment"];
+            $tgtCurrency = $order->currency_code;
+        }
 
         $params = array(
             "src_currency" =>  $data['srcCurrency'],
             "amount" => $order->total,
             "exchange_id" => $data['exchangeId'],
-            "tgt_currency" => $order->currency_code,
+            "tgt_currency" => $tgtCurrency,
             "callback" => route('icommercexpay.api.xpay.response')
         );
 
