@@ -104,7 +104,7 @@ var index_xpay = new Vue({
 
       if(this.dataError)
         console.error(this.dataErrorMsj)
-
+     
     },
     generatePayment(){
 
@@ -212,7 +212,11 @@ var index_xpay = new Vue({
       copyText.setSelectionRange(0, 99999); /*For mobile devices*/
       document.execCommand("copy");
     }
-  
+  },
+  computed: {
+    sortedCurrencies(){
+      return this.data.currencies.sort((a, b) => (a.currency.name > b.currency.name) ? 1 : -1)
+    }
   }
 })
 

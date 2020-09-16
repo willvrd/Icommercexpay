@@ -6,7 +6,7 @@
 
         <ul class="list-group text-left list-group-flush w-75 mx-auto">
 
-            <li v-for="(crc,index) in data.currencies" :key="index" class="list-group-item">
+            <li v-for="(crc,index) in sortedCurrencies" :key="index" class="list-group-item">
                 <div class="custom-control custom-radio">
                     <input name="radioCurrencies" type="radio" class="custom-control-input" :value="crc" :id="'in-'+index" v-model="selectedCurrency" required>
                     <label class="custom-control-label"  :for="'in-'+index">
