@@ -12,13 +12,35 @@
             <div class="col-sm-8">
             <ul class="list-group list-group-flush text-left">
                 <li class="list-group-item">
+                    <label><strong>Monto a pagar (@{{dataPayment.currency_to_paid}}):</strong></label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control"  :value="dataPayment.amount_to_paid" id="walletAmount" readonly aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" @click="copyText('walletAmount')" type="button">Copiar</button>
+                        </div>
+                    </div>
+                </li>   
+                {{--
+                <li class="list-group-item">
                     <strong>Monto a pagar:</strong> 
                         @{{dataPayment.amount_to_paid}} @{{dataPayment.currency_to_paid}}
                 </li>
+                --}}
+                <li class="list-group-item">
+                    <label><strong>Wallet:</strong> </label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control"  :value="dataPayment.wallet" id="walletCode" readonly aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" @click="copyText('walletCode')" type="button">Copiar</button>
+                        </div>
+                    </div>
+                </li>
+                {{--
                 <li class="list-group-item">
                     <strong>Wallet:</strong>
                     @{{dataPayment.wallet}}
                 </li>
+                --}}
                 <li class="list-group-item d-flex align-items-start">
                     <strong>Tiempo:</strong>
                     <div class="timer ml-2 badge badge-secondary p-2 text-wrap" style="font-size:1rem">

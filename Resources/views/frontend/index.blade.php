@@ -205,6 +205,12 @@ var index_xpay = new Vue({
         index_xpay.onStep(3)
       });
     
+    },
+    copyText(myInput){
+      var copyText = document.getElementById(myInput);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+      document.execCommand("copy");
     }
   
   }
@@ -219,7 +225,7 @@ var index_xpay = new Vue({
       top: 0;
       left: 0;
       background-color: rgba(255, 255, 255, 0.95);
-      z-index: 1;
+      z-index: 9999;
   }
   .flex-center{
       align-items: center;
